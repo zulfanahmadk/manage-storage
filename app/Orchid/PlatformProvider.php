@@ -38,8 +38,8 @@ class PlatformProvider extends OrchidServiceProvider
                 ->icon('bs.display')
                 ->route(config('platform.index')),
 
-            Menu::make('Sample Screen')
-                ->icon('bs.collection')
+            Menu::make('Data Barang')
+                ->icon('bs.box')
                 ->route('platform.example')
                 ->badge(fn () => 6),
 
@@ -56,8 +56,8 @@ class PlatformProvider extends OrchidServiceProvider
                 ->icon('bs.columns-gap')
                 ->route('platform.example.grid'),
 
-            Menu::make('Charts')
-                ->icon('bs.bar-chart')
+            Menu::make('Monitoring')
+                ->icon('bs.graph-up')
                 ->route('platform.example.charts'),
 
             Menu::make('Cards')
