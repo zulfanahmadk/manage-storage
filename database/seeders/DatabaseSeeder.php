@@ -12,13 +12,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seeder untuk User (contoh)
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Seeder untuk movement item
+        $this->call([
+            ItemSeeder::class,         // Seeder untuk tbl_item, dijalankan dulu
+            MovementItemSeeder::class, // Seeder yang tergantung kedua seeder di atas, dijalankan terakhir
         ]);
-
-        // Panggil seeder untuk Item
-        $this->call(ItemSeeder::class);
     }
 }

@@ -12,11 +12,11 @@ class CreateTblItemTable extends Migration
     public function up(): void
     {
         Schema::create('tbl_item', function (Blueprint $table) {
-            $table->unsignedBigInteger('item_id')->primary();
+            $table->bigIncrements('item_id'); // PK auto-increment
             $table->string('nama_item', 255);
-            $table->text('deskripsi');
-            $table->integer('stock')->length(25);
-            $table->string('unit');
+            $table->text('deskripsi')->nullable(); // Optional
+            $table->integer('stock')->default(0);
+            $table->string('unit', 50);
             $table->timestamps();
         });
     }

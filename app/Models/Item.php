@@ -2,21 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
 {
-    // Nama tabel
-    protected $table = 'tbl_item';
+    use HasFactory;
 
-    // Primary key
+    protected $table = 'tbl_item';
     protected $primaryKey = 'item_id';
 
-    // Jika primary key bukan auto-increment atau bukan integer
-    public $incrementing = true;
-    protected $keyType = 'int';
-
-    // Kolom yang bisa diisi (fillable)
     protected $fillable = [
         'nama_item',
         'deskripsi',
@@ -24,6 +19,8 @@ class Item extends Model
         'unit',
     ];
 
-    // (Optional) Jika tidak ingin menggunakan timestamps (created_at, updated_at)
-    public $timestamps = true;
+    public function movements()
+    {
+        return $this->hasMany(MovementItem::class, 'item_id', 'item_id');
+    }
 }
