@@ -18,6 +18,9 @@ use Orchid\Support\Facades\Layout;
 use Orchid\Support\Facades\Toast;
 use App\Models\Supplier;
 use App\Models\Item;
+use App\Models\MovementItem;
+use Illuminate\Support\Facades\DB;
+
 
 class ExampleScreen extends Screen
 {
@@ -29,35 +32,52 @@ class ExampleScreen extends Screen
      */
     public function query(): iterable
     {
-        return [
-            'charts'  => [
+
+            // Ambil total barang masuk atau keluar
+            $dataBarangMasuk = MovementItem::select('item_id', DB::raw('SUM(quantity) as total_masuk'))
+                ->where('movement_type', 'in')
+                ->groupBy('item_id')
+                ->with('item') // pastikan relasi ke tabel items
+                ->get();
+
+            $labelsMasuk = $dataBarangMasuk->pluck('item.nama_item')->toArray(); // ambil nama item
+            $valuesMasuk = $dataBarangMasuk->pluck('total_masuk')->toArray();     // ambil total masuk
+
+            $dataBarangKeluar = MovementItem::select('item_id', DB::raw('SUM(quantity) as total_keluar'))
+                ->where('movement_type', 'out')
+                ->groupBy('item_id')
+                ->with('item')
+                ->get();
+
+            $labelsKeluar = $dataBarangKeluar->pluck('item.nama_item')->toArray();
+            $valuesKeluar = $dataBarangKeluar->pluck('total_keluar')->toArray();
+
+            // Kolom total barang masuk dan keluar
+            $totalMasuk  = MovementItem::where('movement_type', 'in')->sum('quantity');
+            $totalKeluar = MovementItem::where('movement_type', 'out')->sum('quantity');
+            $jumlahSupplier = Supplier::count();
+            return [
+
+            'chartsMasuk'  => [
                 [
-                    'name'   => 'Some Data',
-                    'values' => [25, 40, 30, 35, 8, 52, 17],
-                    'labels' => ['12am-3am', '3am-6am', '6am-9am', '9am-12pm', '12pm-3pm', '3pm-6pm', '6pm-9pm'],
+                    'name'   => 'Barang Masuk',
+                    'values' => $valuesMasuk,
+                    'labels' => $labelsMasuk,
                 ],
+            ],
+            'chartsKeluar'  => [
                 [
-                    'name'   => 'Another Set',
-                    'values' => [25, 50, -10, 15, 18, 32, 27],
-                    'labels' => ['12am-3am', '3am-6am', '6am-9am', '9am-12pm', '12pm-3pm', '3pm-6pm', '6pm-9pm'],
-                ],
-                [
-                    'name'   => 'Yet Another',
-                    'values' => [15, 20, -3, -15, 58, 12, -17],
-                    'labels' => ['12am-3am', '3am-6am', '6am-9am', '9am-12pm', '12pm-3pm', '3pm-6pm', '6pm-9pm'],
-                ],
-                [
-                    'name'   => 'And Last',
-                    'values' => [10, 33, -8, -3, 70, 20, -34],
-                    'labels' => ['12am-3am', '3am-6am', '6am-9am', '9am-12pm', '12pm-3pm', '3pm-6pm', '6pm-9pm'],
+                    'name'   => 'Barang Keluar',
+                    'values' => $valuesKeluar,
+                    'labels' => $labelsKeluar,
                 ],
             ],
             'items' => Item::orderBy('item_id', 'desc')->paginate(), // pagination agar sorting bekerja optimal
 
             'metrics' => [
-                'sales'    => ['value' => number_format(6851), 'diff' => 10.08],
-                'visitors' => ['value' => number_format(24668), 'diff' => -30.76],
-                'supplier'   => ['value' => number_format(Supplier::count()), 'diff'  => 0,],
+                'barangMasuk'  => ['value' => number_format($totalMasuk)],
+                'barangKeluar' => ['value' => number_format($totalKeluar)],
+                'supplier'   => ['value' => number_format(Supplier::count())],
                 'total'    => number_format(65661),
             ],
         ];
@@ -76,7 +96,7 @@ class ExampleScreen extends Screen
      */
     public function description(): ?string
     {
-        return 'Halaman Monitoring untuk memantau data keluar atau masuk';
+        return 'Halaman Monitoring untuk memantau stock barang';
     }
 
     /**
@@ -95,18 +115,15 @@ class ExampleScreen extends Screen
     {
         return [
             Layout::metrics([
-                'Sales Today'    => 'metrics.sales',
-                'Visitors Today' => 'metrics.visitors',
-                'Jumlah Supplier' => 'metrics.supplier',
-                'Total Earnings' => 'metrics.total',
+                'Total Barang Masuk'    => 'metrics.barangMasuk',
+                'Total Barang Keluar'   => 'metrics.barangKeluar',
+                'Jumlah Supplier'       => 'metrics.supplier',
+                'Total Earnings'        => 'metrics.total',
             ]),
 
             Layout::columns([
-                ChartLineExample::make('charts', 'Line Chart')
-                    ->description('Visualize data trends with multi-colored line graphs.'),
-
-                ChartBarExample::make('charts', 'Bar Chart')
-                    ->description('Compare data sets with colorful bar graphs.'),
+                ChartLineExample::make('chartsMasuk', 'Barang Masuk'),
+                ChartBarExample::make('chartsKeluar', 'Barang Keluar'),
             ]),
 
             Layout::table('items', [
@@ -135,31 +152,6 @@ class ExampleScreen extends Screen
                 ->width('100')
                 ->render(fn($item) => $item->created_at->format('d-m-Y H:i')),
         ]),
-        ];
-    }
-
-        public function query_search(Request $request): iterable
-    {
-        // Ambil kata kunci pencarian dari parameter request
-        $searchTerm = $request->get('search', '');
-
-        // Query untuk mendapatkan data dari Item dan filter berdasarkan pencarian
-        $itemsQuery = Item::query();
-
-        if ($searchTerm) {
-            $itemsQuery->where('nama_item', 'like', '%' . $searchTerm . '%');
-        }
-
-        $items = $itemsQuery->get();
-
-        return [
-            'items' => $items,
-            'metrics' => [
-                'sales'    => ['value' => number_format(6851), 'diff' => 10.08],
-                'visitors' => ['value' => number_format(24668), 'diff' => -30.76],
-                'supplier' => ['value' => number_format(Supplier::count()), 'diff' => 0],
-                'total'    => number_format(65661),
-            ],
         ];
     }
 }
