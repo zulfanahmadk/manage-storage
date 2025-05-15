@@ -2,13 +2,12 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Events\Login;
 use App\Listeners\LogSuccessfulLogin;
+use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
+class EventServiceProvider extends ServiceProvider
 {
-
     /**
      * Event to listener mappings for the application.
      *
@@ -19,16 +18,9 @@ class AppServiceProvider extends ServiceProvider
             LogSuccessfulLogin::class,
         ],
     ];
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        //
-    }
 
     /**
-     * Bootstrap any application services.
+     * Register any events for your application.
      */
     public function boot(): void
     {

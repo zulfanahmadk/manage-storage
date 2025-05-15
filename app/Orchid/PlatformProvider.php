@@ -40,8 +40,7 @@ class PlatformProvider extends OrchidServiceProvider
 
             Menu::make('Data Barang')
                 ->icon('bs.box')
-                ->route('platform.example')
-                ->badge(fn () => 6),
+                ->route('platform.example'),
 
             Menu::make('Form Elements')
                 ->icon('bs.card-list')
