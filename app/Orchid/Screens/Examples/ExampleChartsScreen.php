@@ -48,7 +48,7 @@ class ExampleChartsScreen extends Screen
      */
     public function name(): ?string
     {
-        return 'Monitoring Grafik';
+        return 'Monitoring';
     }
 
     /**

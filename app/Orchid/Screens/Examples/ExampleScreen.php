@@ -78,7 +78,7 @@ class ExampleScreen extends Screen
                 'barangMasuk'  => ['value' => number_format($totalMasuk)],
                 'barangKeluar' => ['value' => number_format($totalKeluar)],
                 'supplier'   => ['value' => number_format(Supplier::count())],
-                'total'    => number_format(65661),
+                'total' => number_format(Item::sum('stock')),
             ],
         ];
     }
@@ -88,7 +88,7 @@ class ExampleScreen extends Screen
      */
     public function name(): ?string
     {
-        return 'Monitoring';
+        return 'Data Barang';
     }
 
     /**
@@ -96,7 +96,7 @@ class ExampleScreen extends Screen
      */
     public function description(): ?string
     {
-        return 'Halaman Monitoring untuk memantau stock barang';
+        return 'Halaman untuk memantau stock barang';
     }
 
     /**
@@ -118,7 +118,7 @@ class ExampleScreen extends Screen
                 'Total Barang Masuk'    => 'metrics.barangMasuk',
                 'Total Barang Keluar'   => 'metrics.barangKeluar',
                 'Jumlah Supplier'       => 'metrics.supplier',
-                'Total Earnings'        => 'metrics.total',
+                'Total Stock Barang'    => 'metrics.total',
             ]),
 
             Layout::columns([
